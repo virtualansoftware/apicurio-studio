@@ -76,6 +76,16 @@ public class HubConfiguration extends Configuration {
     private static final String MICROCKS_CLIENT_SECRET_ENV = "APICURIO_MICROCKS_CLIENT_SECRET";
     private static final String MICROCKS_CLIENT_SECRET_SYSPROP = "apicurio.hub.microcks.clientSecret";
 
+    private static final String VIRTUALAN_API_URL_ENV = "APICURIO_VIRTUALAN_API_URL";
+    private static final String VIRTUALAN_API_URL_SYSPROP = "apicurio.hub.virtualan.api";
+
+    private static final String VIRTUALAN_CLIENT_ID_ENV = "APICURIO_VIRTUALAN_CLIENT_ID";
+    private static final String VIRTUALAN_CLIENT_ID_SYSPROP = "apicurio.hub.virtualan.clientId";
+
+    private static final String VIRTUALAN_CLIENT_SECRET_ENV = "APICURIO_VIRTUALAN_CLIENT_SECRET";
+    private static final String VIRTUALAN_CLIENT_SECRET_SYSPROP = "apicurio.hub.virtualan.clientSecret";
+
+
     private static final String EDITING_SESSION_TYPE_ENV = "APICURIO_HUB_EDITING_SESSION_TYPE";
     private static final String EDITING_SESSION_TYPE_SYSPROP = "apicurio.hub.editing.session.type";
 
@@ -196,6 +206,37 @@ public class HubConfiguration extends Configuration {
     public String getBitbucketApiUrl() {
         return getConfigurationProperty(BITBUCKET_API_URL_ENV, BITBUCKET_API_URL_SYSPROP, "https://api.bitbucket.org/2.0");
     }
+
+
+
+    /**
+     * @return true if a Virtualan API has been configured (we assume that means microcks exists and we're integrated with it)
+     */
+    public boolean isVirtualanConfigured() {
+        return getVirtualanApiUrl() != null;
+    }
+
+    /**
+     * @return the configured Virtualan API URL
+     */
+    public String getVirtualanApiUrl() {
+        return getConfigurationProperty(VIRTUALAN_API_URL_ENV, VIRTUALAN_API_URL_SYSPROP, null);
+    }
+
+    /**
+     * @return the configured Virtualan ClientId
+     */
+    public String getVirtualanClientId() {
+        return getConfigurationProperty(VIRTUALAN_CLIENT_ID_ENV, VIRTUALAN_CLIENT_ID_SYSPROP, null);
+    }
+
+    /**
+     * @return the configured Virtualan ClientSecret
+     */
+    public String getVirtualanClientSecret() {
+        return getConfigurationProperty(VIRTUALAN_CLIENT_SECRET_ENV, VIRTUALAN_CLIENT_SECRET_SYSPROP, null);
+    }
+
 
     /**
      * @return true if a microcks API has been configured (we assume that means microcks exists and we're integrated with it)

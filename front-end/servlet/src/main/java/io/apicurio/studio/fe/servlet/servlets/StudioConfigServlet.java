@@ -113,6 +113,7 @@ public class StudioConfigServlet extends HttpServlet {
             
             config.setFeatures(new StudioConfigFeatures());
             config.getFeatures().setMicrocks(uiConfig.isMicrocksEnabled());
+            config.getFeatures().setVirtualan(uiConfig.isVirtualanEnabled());
             config.getFeatures().setGraphql(uiConfig.isGraphQLEnabled());
             config.getFeatures().setAsyncapi(uiConfig.isAsyncAPIEnabled());
             config.getFeatures().setShareWithEveryone(uiConfig.isShareWithEveryoneEnabled());

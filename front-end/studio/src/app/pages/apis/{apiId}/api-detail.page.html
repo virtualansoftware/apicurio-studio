@@ -85,6 +85,12 @@
                                                         <span>Mock with Microcks...</span>
                                                     </a>
                                                 </li>
+                                                <li *ngIf="actionEnabled('mock')">
+                                                    <a [routerLink]="[ 'mock' ]">
+                                                        <span class="fa fa-fw fa-cloud-upload"></span>
+                                                        <span>Mock with Virtualan...</span>
+                                                    </a>
+                                                </li>
                                                 <li role="separator" class="divider"></li>
                                                 <li *ngIf="actionEnabled('download')">
                                                     <a (click)="downloadModal.open(api)">

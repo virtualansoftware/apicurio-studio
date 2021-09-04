@@ -288,7 +288,7 @@ export class ApiDetailPageComponent extends AbstractPageComponent {
             return this.isGraphQL();
         }
         if (action == "mock") {
-            return this.config.isMicrocksEnabled() && (this.isOpenApi30() || this.isAsyncApi20());
+            return true; //this.config.isMicrocksEnabled() //&& (this.isOpenApi30() || this.isAsyncApi20());
         }
         if (action == "edit-data-model") {
             return this.isOpenApi30() || this.isOpenApi20() || this.isAsyncApi20();

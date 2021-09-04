@@ -43,6 +43,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 
+import io.apicurio.hub.api.virtualan.IVirtualanConnector;
+import io.apicurio.hub.api.virtualan.VirtualanConnectorException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -153,6 +155,9 @@ public class DesignsResource implements IDesignsResource {
     private IEditingSessionManager editingSessionManager;
     @Inject
     private IMicrocksConnector microcks;
+
+    @Inject
+    private IVirtualanConnector virtualan;
 
     @Context
     private HttpServletRequest request;
@@ -900,36 +905,71 @@ public class DesignsResource implements IDesignsResource {
     @Override
     public MockReference mockApi(String designId) throws ServerError, NotFoundException {
         try {
-            // First step - publish the content to the Microcks server API
-            String content = getApiContent(designId, FormatType.YAML);
-            String serviceRef = this.microcks.uploadResourceContent(content);
+            if(config.isMicrocksConfigured()) {
+                // First step - publish the content to the Microcks server API
+                String content = getApiContent(designId, FormatType.YAML);
+                String serviceRef = this.microcks.uploadResourceContent(content);
 
-            // Build mockURL from microcksURL.
-            String mockURL = null;
-            String microcksURL = config.getMicrocksApiUrl();
-            try {
-                mockURL = microcksURL.substring(0, microcksURL.lastIndexOf("/api")) + "/#/services/"
-                      + URLEncoder.encode(serviceRef, "UTF-8");
-            } catch (Exception e) {
-                logger.error("Failed to produce a valid mockURL", e);
+                // Build mockURL from microcksURL.
+                String mockURL = null;
+                String microcksURL = config.getMicrocksApiUrl();
+                try {
+                    mockURL = microcksURL.substring(0, microcksURL.lastIndexOf("/api")) + "/#/services/"
+                            + URLEncoder.encode(serviceRef, "UTF-8");
+                } catch (Exception e) {
+                    logger.error("Failed to produce a valid mockURL", e);
+                }
+
+                // Followup step - store a row in the api_content table
+                try {
+                    String user = this.security.getCurrentUser().getLogin();
+                    String mockData = createMockData(serviceRef, mockURL);
+                    storage.addContent(user, designId, ApiContentType.Mock, mockData);
+                } catch (Exception e) {
+                    logger.error("Failed to record API mock publication in database.", e);
+                }
+
+                // Finally return response.
+                MockReference mockRef = new MockReference();
+                mockRef.setMockType("microcks");
+                mockRef.setServiceRef(serviceRef);
+                mockRef.setMockURL(mockURL);
+                return mockRef;
+            } else {
+                // First step - publish the content to the Virtualan server API
+                System.out.println("ELANNNNNNNNNNNNNNNNNNNNNN >>>>>> 1");
+                String content = getApiContent(designId, FormatType.YAML);
+                System.out.println("ELANNNNNNNNNNNNNNNNNNNNNN >>>>>> 2");
+                String serviceRef = this.virtualan.uploadResourceContent(content);
+                System.out.println("ELANNNNNNNNNNNNNNNNNNNNNN >>>>>> 3");
+
+                // Build mockURL from virtualanURL.
+                String mockURL = null;
+                String virtualanURL = config.getVirtualanApiUrl();
+                try {
+                    mockURL = virtualanURL.substring(0, virtualanURL.lastIndexOf("/api")) + "/#/services/"
+                            + URLEncoder.encode(serviceRef, "UTF-8");
+                } catch (Exception e) {
+                    logger.error("Failed to produce a valid mockURL", e);
+                }
+
+                // Followup step - store a row in the api_content table
+                try {
+                    String user = this.security.getCurrentUser().getLogin();
+                    String mockData = createMockData(serviceRef, mockURL);
+                    storage.addContent(user, designId, ApiContentType.Mock, mockData);
+                } catch (Exception e) {
+                    logger.error("Failed to record API mock publication in database.", e);
+                }
+
+                // Finally return response.
+                MockReference mockRef = new MockReference();
+                mockRef.setMockType("virtualan");
+                mockRef.setServiceRef(serviceRef);
+                mockRef.setMockURL(mockURL);
+                return mockRef;
             }
-
-            // Followup step - store a row in the api_content table
-            try {
-                String user = this.security.getCurrentUser().getLogin();
-                String mockData = createMockData(serviceRef, mockURL);
-                storage.addContent(user, designId, ApiContentType.Mock, mockData);
-            } catch (Exception e) {
-                logger.error("Failed to record API mock publication in database.", e);
-            }
-
-            // Finally return response.
-            MockReference mockRef = new MockReference();
-            mockRef.setMockType("microcks");
-            mockRef.setServiceRef(serviceRef);
-            mockRef.setMockURL(mockURL);
-            return mockRef;
-        } catch (MicrocksConnectorException e) {
+        } catch (MicrocksConnectorException | VirtualanConnectorException e) {
             throw new ServerError(e);
         }
     }
@@ -1036,7 +1076,11 @@ public class DesignsResource implements IDesignsResource {
     
                 // Convert to yaml if necessary
                 if (format == FormatType.YAML) {
-                    content = FormatUtils.jsonToYaml(content);
+                    try{
+                        content = FormatUtils.jsonToYaml(content);
+                    }catch (Exception e){
+                        logger.warn("NOT a JSON");
+                    }
                 } else {
                     content = FormatUtils.formatJson(content);
                 }

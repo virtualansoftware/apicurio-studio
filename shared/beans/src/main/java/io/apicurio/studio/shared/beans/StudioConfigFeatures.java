@@ -26,7 +26,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
 public class StudioConfigFeatures {
-    
+
+    private boolean virtualan;
     private boolean microcks;
     private boolean asyncapi;
     private boolean graphql;
@@ -37,6 +38,21 @@ public class StudioConfigFeatures {
      */
     public StudioConfigFeatures() {
     }
+
+    /**
+     * @return the virtualan
+     */
+    public boolean isVirtualan() {
+        return virtualan;
+    }
+
+    /**
+     * @param virtualan the virtualan to set
+     */
+    public void setVirtualan(boolean virtualan) {
+        this.virtualan = virtualan;
+    }
+
 
     /**
      * @return the microcks

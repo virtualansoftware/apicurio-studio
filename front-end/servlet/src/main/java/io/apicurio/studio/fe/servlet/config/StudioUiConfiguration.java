@@ -42,6 +42,9 @@ public class StudioUiConfiguration extends Configuration {
     private static final String HUB_UI_URL_ENV = "APICURIO_UI_HUB_UI_URL";
     private static final String HUB_UI_URL_SYSPROP = "apicurio-ui.url";
 
+    private static final String FEATURE_VIRTUALAN_ENV = "APICURIO_UI_FEATURE_VIRTUALAN";
+    private static final String FEATURE_VIRTUALAN_SYSPROP = "apicurio-ui.feature.virtualan";
+
     private static final String FEATURE_MICROCKS_ENV = "APICURIO_UI_FEATURE_MICROCKS";
     private static final String FEATURE_MICROCKS_SYSPROP = "apicurio-ui.feature.microcks";
 
@@ -91,6 +94,13 @@ public class StudioUiConfiguration extends Configuration {
      */
     public boolean isMicrocksEnabled() {
         return "true".equals(getConfigurationProperty(FEATURE_MICROCKS_ENV, FEATURE_MICROCKS_SYSPROP, "false"));
+    }
+
+    /**
+     * Returns true if the integration with Virtualan should be enabled in the UI.
+     */
+    public boolean isVirtualanEnabled() {
+        return "true".equals(getConfigurationProperty(FEATURE_VIRTUALAN_ENV, FEATURE_VIRTUALAN_SYSPROP, "false"));
     }
 
     /**
